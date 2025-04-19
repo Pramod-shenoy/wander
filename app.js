@@ -22,14 +22,20 @@ const userRouter = require("./routes/user.js");
 
 const dbUrl = process.env.MONGO_URL || "mongodb://127.0.0.1:27017/wander";
 
-// MongoDB Connection
-mongoose.connect(dbUrl)
-    .then(() => {
-        console.log("Connected to DB");
-    })
-    .catch((err) => {
-        console.error("Error connecting to DB:", err);
-    });
+// MongoDB Connection with retry logic
+const connectWithRetry = () => {
+    mongoose.connect(dbUrl)
+        .then(() => {
+            console.log("Connected to DB");
+        })
+        .catch((err) => {
+            console.error("Error connecting to DB:", err);
+            console.log("Retrying in 5 seconds...");
+            setTimeout(connectWithRetry, 5000);
+        });
+};
+
+connectWithRetry();
 
 app.set("view engine","ejs");
 app.set("views",path.join(__dirname,"views"));
@@ -43,7 +49,7 @@ const store = MongoStore.create({
     crypto:{
         secret : process.env.SECRET,
     },
-    touchAfter:24 * 3600,
+    touchAfter: 24 * 3600,
 });
 
 store.on("error",(err) => {
@@ -54,13 +60,19 @@ const sessionOptions = {
     store,
     secret : process.env.SECRET,
     resave : false,
-    saveUninitialized : true,
+    saveUninitialized : false,
     cookie : {
         expires : Date.now() + 7 * 24 * 60 * 60 * 1000,
         maxAge : 7 * 24 * 60 * 60 * 1000,
         httpOnly : true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: 'lax'
     },
 };
+
+if (process.env.NODE_ENV === "production") {
+    app.set('trust proxy', 1); // trust first proxy
+}
 
 app.use(session(sessionOptions));
 app.use(flash());
@@ -110,7 +122,7 @@ app.use((err,req,res,next) =>{
     res.status(statusCode).render("error.ejs", { err, statusCode });
 });
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 8080;
 app.listen(port,() => {
     console.log(`Server is listening to port ${port}`);
 });
