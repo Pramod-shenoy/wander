@@ -1,0 +1,90 @@
+<style>
+    .search-btn{
+      background-color: #fe424d;
+      color: #ffff;
+      border-radius: 25px;
+      padding: 0 1rem 0 1rem;
+    }
+    .search-btn:hover{
+      background-color: #fe424d;
+      color: #ffff;
+    }
+    .search-btn i {
+      display: inline;
+      margin-right: 0.5rem;
+    }
+    .search-inp{
+      border-radius: 25px;
+      padding: 0.5rem 3rem 0.5rem 3rem;
+      font-size: 1rem;
+    }
+    .nav-link-logo{
+      color: #fe424d !important;
+      text-decoration: none;
+      font-weight: 900;
+    }
+    .profile-menu {
+      position: relative;
+      cursor: pointer;
+    }
+    .profile-icon {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background-color: #fe424d;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: 1rem;
+    }
+    .dropdown-menu {
+      margin-top: 0.5rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    .dropdown-item:hover {
+      background-color: #f8f9fa;
+    }
+  </style>
+  
+  <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="/"><i class="fa-regular fa-compass"></i> DreamDestiny</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="/listings">All Listings</a>
+                </li>
+                <% if(!currUser) { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/login">Login</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/signup">Sign Up</a>
+                    </li>
+                <% } else { %>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/listings/new">New Listing</a>
+                    </li>
+                <% } %>
+            </ul>
+            <% if(currUser) { %>
+                <div class="profile-menu dropdown">
+                    <div class="profile-icon" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa-regular fa-user"></i>
+                    </div>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/profile"><i class="fa-regular fa-user me-2"></i>Profile</a></li>
+                        <li><a class="dropdown-item" href="/my-listings"><i class="fa-regular fa-list-alt me-2"></i>My Listings</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="/logout"><i class="fa-solid fa-right-from-bracket me-2"></i>Logout</a></li>
+                    </ul>
+                </div>
+            <% } %>
+        </div>
+    </div>
+</nav>

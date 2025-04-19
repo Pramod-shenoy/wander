@@ -1,0 +1,98 @@
+<% layout("/layouts/boilerplate") %>
+
+<div class="container py-5">
+    <div class="row g-4">
+        <!-- Left Column - Profile Card -->
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body text-center p-4">
+                    <div class="profile-image mb-4">
+                        <div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center shadow-sm" 
+                             style="width: 160px; height: 160px; transition: all 0.3s ease;">
+                            <i class="fa-regular fa-user fa-4x text-secondary opacity-75"></i>
+                        </div>
+                    </div>
+                    <h3 class="card-title fw-bold mb-2"><%= currUser.username %></h3>
+                    <p class="text-muted mb-0">
+                        <i class="fa-regular fa-calendar-alt me-2"></i>
+                        Member since <%= new Date(currUser.createdAt).toLocaleDateString() %>
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Column - Info Cards -->
+        <div class="col-md-8">
+            <!-- Profile Information Card -->
+            <div class="card shadow-sm border-0 rounded-3 mb-4">
+                <div class="card-body p-4">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <h4 class="card-title m-0">Profile Information</h4>
+                        <a href="#" class="btn btn-primary px-4">
+                            <i class="fa-regular fa-edit me-2"></i>Edit Profile
+                        </a>
+                    </div>
+                    <div class="mb-4">
+                        <label class="text-muted small mb-1">Username</label>
+                        <p class="mb-0 fs-5"><%= currUser.username %></p>
+                    </div>
+                    <div>
+                        <label class="text-muted small mb-1">Email</label>
+                        <p class="mb-0 fs-5"><%= currUser.email %></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Activity Card -->
+            <div class="card shadow-sm border-0 rounded-3">
+                <div class="card-body p-4">
+                    <h4 class="card-title mb-4">Activity</h4>
+                    
+                    <!-- My Listings Section -->
+                    <div class="activity-item p-3 rounded-3 bg-light mb-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">My Listings</h5>
+                                <p class="text-muted small mb-0">Properties you've listed</p>
+                            </div>
+                            <a href="/my-listings" class="btn btn-primary">
+                                View All
+                                <i class="fa-solid fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- My Bookings Section -->
+                    <div class="activity-item p-3 rounded-3 bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <h5 class="mb-1">My Bookings</h5>
+                                <p class="text-muted small mb-0">Places you've booked</p>
+                            </div>
+                            <a href="#" class="btn btn-primary">
+                                View All
+                                <i class="fa-solid fa-arrow-right ms-2"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .activity-item {
+        transition: all 0.3s ease;
+    }
+    .activity-item:hover {
+        background-color: #f8f9fa !important;
+        transform: translateY(-2px);
+    }
+    .btn {
+        transition: all 0.3s ease;
+    }
+    .btn:hover {
+        transform: translateY(-1px);
+    }
+</style> 
