@@ -27,4 +27,9 @@ router
 
 router.get("/:id/edit",isLoggedIn,isOwner, wrapAsync(listingController.renderEditForm));
 
+// Add this route before other routes
+router.get("/mapbox-token", (req, res) => {
+    res.json({ token: process.env.MAPBOX_TOKEN });
+});
+
 module.exports = router;
