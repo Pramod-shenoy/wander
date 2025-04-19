@@ -90,10 +90,21 @@
 <style>
     #map {
         width: 100%;
-        height: 400px;
+        height: 500px;
         border-radius: 1rem;
         margin-top: 1rem;
         border: 1px solid #ddd;
+        position: relative;
+        background-color: #f8f9fa;
+    }
+
+    #map::before {
+        content: "Loading map...";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        color: #666;
     }
 </style>
 
@@ -115,61 +126,73 @@
 
         async function initializeMap() {
             try {
-                const response = await fetch('/listings/mapbox-token');
-                const data = await response.json();
-                mapboxgl.accessToken = data.token;
+                // Set token directly for testing
+                mapboxgl.accessToken = 'pk.eyJ1IjoicHJhbW9kMTgiLCJhIjoiY205bzh0NGhrMHVjaTJvczk5dWFldDZrcyJ9.RDuXPK7mrZHR3tf2AFV1UQ';
+                
+                console.log("Initializing map with token:", mapboxgl.accessToken);
+                console.log("Map container:", document.getElementById('map'));
                 
                 map = new mapboxgl.Map({
                     container: 'map',
                     style: 'mapbox://styles/mapbox/streets-v12',
                     center: coordinates,
-                    zoom: 9
+                    zoom: 9,
+                    failIfMajorPerformanceCaveat: true
                 });
 
-                marker = new mapboxgl.Marker({ color: '#ff385c' })
-                    .setLngLat(coordinates)
-                    .setPopup(
-                        new mapboxgl.Popup({ offset: 25, closeButton: false })
-                            .setHTML(`
-                                <div style="padding: 10px;">
-                                    <h6 style="margin-bottom: 5px;">${listing.title}</h6>
-                                    <p style="margin-bottom: 0;">${listing.location}, ${listing.country}</p>
-                                </div>
-                            `)
-                    )
-                    .addTo(map);
-
-                // Add navigation controls
-                map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-                // Handle map load event
                 map.on('load', () => {
                     console.log("Map loaded successfully");
+                    
+                    marker = new mapboxgl.Marker({ color: '#ff385c' })
+                        .setLngLat(coordinates)
+                        .setPopup(
+                            new mapboxgl.Popup({ offset: 25, closeButton: false })
+                                .setHTML(`
+                                    <div style="padding: 10px;">
+                                        <h6 style="margin-bottom: 5px;">${listing.title}</h6>
+                                        <p style="margin-bottom: 0;">${listing.location}, ${listing.country}</p>
+                                    </div>
+                                `)
+                        )
+                        .addTo(map);
+
+                    // Add navigation controls
+                    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
                     marker.togglePopup(); // Show popup by default
                 });
 
                 // Handle map error event
                 map.on('error', (e) => {
                     console.error("Map error:", e);
+                    document.getElementById('map').innerHTML = `
+                        <div class="alert alert-danger" role="alert">
+                            Map Error: ${e.error.message || 'Unknown error occurred'}
+                        </div>
+                    `;
                 });
 
             } catch (error) {
                 console.error('Error loading map:', error);
                 document.getElementById('map').innerHTML = `
                     <div class="alert alert-danger" role="alert">
-                        Unable to load map. Please try again later.
+                        Unable to load map. Error: ${error.message}
                     </div>
                 `;
             }
         }
 
-        initializeMap();
+        // Wait for DOM to be fully loaded
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initializeMap);
+        } else {
+            initializeMap();
+        }
 
     } catch (err) {
         console.error("Error initializing map:", err);
         document.getElementById('map').innerHTML = `
             <div class="alert alert-warning" role="alert">
-                Unable to load map. Please try again later.
+                Unable to load map. Please try again later. Error: ${err.message}
             </div>
         `;
     }
