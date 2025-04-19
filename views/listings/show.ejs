@@ -98,6 +98,9 @@
 </style>
 
 <script>
+    let map;
+    let marker;
+
     try {
         const listing = JSON.parse('<%- JSON.stringify(listing) %>');
         console.log("Listing data:", listing);
@@ -116,40 +119,51 @@
                 const data = await response.json();
                 mapboxgl.accessToken = data.token;
                 
-                const map = new mapboxgl.Map({
+                map = new mapboxgl.Map({
                     container: 'map',
-                    style: 'mapbox://styles/mapbox/streets-v11',
+                    style: 'mapbox://styles/mapbox/streets-v12',
                     center: coordinates,
                     zoom: 9
                 });
 
-                const marker = new mapboxgl.Marker({ color: 'red' })
+                marker = new mapboxgl.Marker({ color: '#ff385c' })
                     .setLngLat(coordinates)
                     .setPopup(
-                        new mapboxgl.Popup({ offset: 25 })
-                            .setHTML(`<h4>${listing.title}</h4><p>Exact location will be provided after booking</p>`)
+                        new mapboxgl.Popup({ offset: 25, closeButton: false })
+                            .setHTML(`
+                                <div style="padding: 10px;">
+                                    <h6 style="margin-bottom: 5px;">${listing.title}</h6>
+                                    <p style="margin-bottom: 0;">${listing.location}, ${listing.country}</p>
+                                </div>
+                            `)
                     )
                     .addTo(map);
+
+                // Add navigation controls
+                map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+                // Handle map load event
+                map.on('load', () => {
+                    console.log("Map loaded successfully");
+                    marker.togglePopup(); // Show popup by default
+                });
+
+                // Handle map error event
+                map.on('error', (e) => {
+                    console.error("Map error:", e);
+                });
+
             } catch (error) {
                 console.error('Error loading map:', error);
+                document.getElementById('map').innerHTML = `
+                    <div class="alert alert-danger" role="alert">
+                        Unable to load map. Please try again later.
+                    </div>
+                `;
             }
         }
 
         initializeMap();
-
-        // Add navigation controls
-        map.addControl(new mapboxgl.NavigationControl(), 'top-right');
-
-        // Handle map load event
-        map.on('load', () => {
-            console.log("Map loaded successfully");
-            marker.togglePopup(); // Show popup by default
-        });
-
-        // Handle map error event
-        map.on('error', (e) => {
-            console.error("Map error:", e);
-        });
 
     } catch (err) {
         console.error("Error initializing map:", err);
