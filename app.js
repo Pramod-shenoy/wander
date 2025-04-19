@@ -58,20 +58,21 @@ store.on("error",(err) => {
 
 const sessionOptions = {
     store,
-    secret : process.env.SECRET,
-    resave : false,
-    saveUninitialized : false,
-    cookie : {
-        expires : Date.now() + 7 * 24 * 60 * 60 * 1000,
-        maxAge : 7 * 24 * 60 * 60 * 1000,
-        httpOnly : true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: 'lax'
-    },
+    name: 'session',
+    secret: process.env.SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: {
+        httpOnly: true,
+        // secure: true,
+        expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+        maxAge: 1000 * 60 * 60 * 24 * 7
+    }
 };
 
 if (process.env.NODE_ENV === "production") {
-    app.set('trust proxy', 1); // trust first proxy
+    app.set('trust proxy', 1);
+    sessionOptions.cookie.secure = true;
 }
 
 app.use(session(sessionOptions));
@@ -85,6 +86,10 @@ passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
 
 app.use((req,res,next)=>{
+    if(!['/login', '/signup'].includes(req.originalUrl)) {
+        req.session.returnTo = req.originalUrl;
+    }
+    res.locals.currentUser = req.user;
     res.locals.success = req.flash("success");
     res.locals.error = req.flash("error");
     res.locals.currUser = req.user;
