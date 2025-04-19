@@ -87,34 +87,6 @@
     </div>
 </div>
 
-<script>
-    const mapToken = "<%= process.env.MAPBOX_TOKEN %>";
-    const listing = JSON.parse('<%- JSON.stringify(listing) %>');
-    
-    const coordinates = {
-        lng: listing.geometry.coordinates[0],
-        lat: listing.geometry.coordinates[1]
-    };
-
-    mapboxgl.accessToken = mapToken;
-    const map = new mapboxgl.Map({
-        container: 'map',
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: coordinates,
-        zoom: 12
-    });
-
-    new mapboxgl.Marker({ color: '#ff385c' })
-        .setLngLat(coordinates)
-        .setPopup(
-            new mapboxgl.Popup({ offset: 25 })
-                .setHTML(`<h6>${listing.title}</h6><p>${listing.location}</p>`)
-        )
-        .addTo(map);
-
-    map.addControl(new mapboxgl.NavigationControl());
-</script>
-
 <style>
     #map {
         width: 100%;
@@ -122,3 +94,43 @@
         border-radius: 1rem;
     }
 </style>
+
+<script>
+    const listing = JSON.parse('<%- JSON.stringify(listing) %>');
+    
+    // Check if listing has valid coordinates
+    const coordinates = listing.geometry.coordinates;
+    
+    mapboxgl.accessToken = '<%= process.env.MAPBOX_TOKEN %>';
+    const map = new mapboxgl.Map({
+        container: 'map',
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: coordinates,
+        zoom: 9
+    });
+
+    // Add marker
+    const marker = new mapboxgl.Marker({ color: '#ff385c' })
+        .setLngLat(coordinates)
+        .setPopup(
+            new mapboxgl.Popup({ offset: 25, closeButton: false })
+                .setHTML(`
+                    <div style="padding: 10px;">
+                        <h6 style="margin-bottom: 5px;">${listing.title}</h6>
+                        <p style="margin-bottom: 0;">${listing.location}, ${listing.country}</p>
+                    </div>
+                `)
+        )
+        .addTo(map);
+
+    // Add navigation controls
+    map.addControl(new mapboxgl.NavigationControl(), 'top-right');
+
+    // Ensure the map container is visible and fit to bounds
+    map.resize();
+    
+    // Add event listener for when the map loads
+    map.on('load', () => {
+        marker.togglePopup(); // Show popup by default
+    });
+</script>

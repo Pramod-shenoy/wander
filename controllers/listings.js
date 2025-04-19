@@ -87,18 +87,36 @@ module.exports.renderEditForm = async (req, res) => {
 };
 
 module.exports.updateListing = async (req, res) => {
-    let { id } = req.params;
-    let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+    try {
+        let { id } = req.params;
+        
+        // Get new coordinates if location or country changed
+        if (req.body.listing.location || req.body.listing.country) {
+            const geoData = await geocodingClient
+                .forwardGeocode({
+                    query: `${req.body.listing.location}, ${req.body.listing.country}`,
+                    limit: 1
+                })
+                .send();
+            req.body.listing.geometry = geoData.body.features[0].geometry;
+        }
 
-    if (req.file) {
-        let url = req.file.path;
-        let filename = req.file.filename;
-        listing.image = { url, filename };
-        await listing.save();
+        let listing = await Listing.findByIdAndUpdate(id, { ...req.body.listing });
+
+        if (req.file) {
+            let url = req.file.path;
+            let filename = req.file.filename;
+            listing.image = { url, filename };
+            await listing.save();
+        }
+
+        req.flash("success", "Listing Updated!");
+        res.redirect(`/listings/${id}`);
+    } catch (err) {
+        console.error("Error updating listing:", err);
+        req.flash("error", "Something went wrong. Try again.");
+        res.redirect(`/listings/${id}/edit`);
     }
-
-    req.flash("success", "Listing Updated!");
-    res.redirect(`/listings/${id}`);
 };
 
 module.exports.destroyListing = async (req, res) => {
